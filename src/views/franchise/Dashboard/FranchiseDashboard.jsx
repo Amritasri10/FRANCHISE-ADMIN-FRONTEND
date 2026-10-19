@@ -558,19 +558,21 @@ function AdminDashboard() {
 
       </div>
 
-      {/* ── ROW 3: Recent Sales + Recent Purchases + Low Stock ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {/* ── ROW 3: Recent Sales + Recent Purchases + Stock Alerts ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 items-stretch">
 
         {/* Recent Sales */}
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader title="Recent Sales" action="View All" onAction={() => navigate('/franchise/reports/sales')} />
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-[360px]">
-              <thead>
-                <tr className="bg-gray-50">
-                  {['Invoice', 'Customer', 'Amount', 'Mode', 'Time'].map(h => (
-                    <th key={h} className="px-3 py-2 text-[10px] text-gray-500 font-bold uppercase text-left border-b border-gray-100">{h}</th>
-                  ))}
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: 220 }}>
+            <table className="w-full border-collapse table-auto">
+              <thead className="sticky top-0 z-10 bg-gray-50">
+                <tr className="border-b border-gray-100">
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left whitespace-nowrap">Invoice</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left whitespace-nowrap">Customer</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right whitespace-nowrap">Amount</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-center whitespace-nowrap">Mode</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right whitespace-nowrap">Time</th>
                 </tr>
               </thead>
               <tbody>
@@ -579,18 +581,14 @@ function AdminDashboard() {
                   : recentSales.map((s, i) => {
                     const mc = modeColor[s.mode] || { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200' }
                     return (
-                      <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                        <td className="px-3 py-2.5 text-[11px] text-blue-900 font-semibold font-mono">
-                          {s.inv?.split('-').slice(-1)[0]}
+                      <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                        <td className="px-2 py-2 text-[11px] text-blue-900 font-semibold font-mono whitespace-nowrap">{s.inv?.split('-').slice(-1)[0]}</td>
+                        <td className="px-2 py-2 text-[12px] text-gray-700 truncate max-w-[90px]">{s.customer}</td>
+                        <td className="px-2 py-2 text-[12px] font-bold text-gray-900 text-right whitespace-nowrap">{s.amount}</td>
+                        <td className="px-2 py-2 text-center">
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap ${mc.bg} ${mc.text} ${mc.border}`}>{s.mode}</span>
                         </td>
-                        <td className="px-3 py-2.5 text-[12px] text-gray-700 max-w-[100px] truncate">{s.customer}</td>
-                        <td className="px-3 py-2.5 text-[12px] font-bold text-gray-900">{s.amount}</td>
-                        <td className="px-3 py-2.5">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${mc.bg} ${mc.text} ${mc.border}`}>
-                            {s.mode}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5 text-[11px] text-gray-400">{s.time}</td>
+                        <td className="px-2 py-2 text-[11px] text-gray-400 text-right whitespace-nowrap">{s.time}</td>
                       </tr>
                     )
                   })
@@ -601,36 +599,32 @@ function AdminDashboard() {
         </Card>
 
         {/* Recent Purchases */}
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader title="Recent Purchases" action="View All" onAction={() => navigate('/franchise/purchase/dashboard')} />
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-[360px]">
-              <thead>
-                <tr className="bg-gray-50">
-                  {['Bill No', 'Supplier', 'Amount', 'Date', 'Status'].map(h => (
-                    <th key={h} className="px-3 py-2 text-[10px] text-gray-500 font-bold uppercase text-left border-b border-gray-100">{h}</th>
-                  ))}
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: 220 }}>
+            <table className="w-full border-collapse table-auto">
+              <thead className="sticky top-0 z-10 bg-gray-50">
+                <tr className="border-b border-gray-100">
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left whitespace-nowrap">Bill No</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left whitespace-nowrap">Supplier</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right whitespace-nowrap">Amount</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right whitespace-nowrap">Date</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-center whitespace-nowrap">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {loading
                   ? Array(5).fill(0).map((_, i) => <SkeletonRow key={i} cols={5} />)
                   : recentPurchases.map((p, i) => (
-                    <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="px-3 py-2.5 text-[11px] text-blue-900 font-semibold font-mono">
-                        {p.billNo?.split('-').slice(-1)[0]}
-                      </td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700 max-w-[100px] truncate">{p.supplier}</td>
-                      <td className="px-3 py-2.5 text-[12px] font-bold text-gray-900">{p.amount}</td>
-                      <td className="px-3 py-2.5 text-[11px] text-gray-400">{p.date}</td>
-                      <td className="px-3 py-2.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          p.status === 'Paid'
-                            ? 'bg-green-50 text-green-700 border-green-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>
-                          {p.status}
-                        </span>
+                    <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                      <td className="px-2 py-2 text-[11px] text-blue-900 font-semibold font-mono whitespace-nowrap">{p.billNo?.split('-').slice(-1)[0]}</td>
+                      <td className="px-2 py-2 text-[12px] text-gray-700 truncate max-w-[90px]">{p.supplier}</td>
+                      <td className="px-2 py-2 text-[12px] font-bold text-gray-900 text-right whitespace-nowrap">{p.amount}</td>
+                      <td className="px-2 py-2 text-[11px] text-gray-400 text-right whitespace-nowrap">{p.date}</td>
+                      <td className="px-2 py-2 text-center">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap ${
+                          p.status === 'Paid' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>{p.status}</span>
                       </td>
                     </tr>
                   ))
@@ -641,34 +635,46 @@ function AdminDashboard() {
         </Card>
 
         {/* Stock Alerts */}
-        <Card className="md:col-span-2 xl:col-span-1">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <AlertTriangle size={13} className="text-red-500" />
+        <Card className="flex flex-col md:col-span-2 2xl:col-span-1">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100 flex-shrink-0">
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle size={13} className="text-red-500 flex-shrink-0" />
               <span className="text-[13px] font-bold text-gray-900">Stock Alerts</span>
             </div>
-            <button onClick={() => navigate('/franchise/inventory/stock')} className="text-[12px] text-blue-900 font-semibold hover:underline">
-              View All
-            </button>
+            <button onClick={() => navigate('/franchise/inventory/stock')} className="text-[12px] text-blue-900 font-semibold hover:underline">View All</button>
           </div>
-          <div>
-            {loading
-              ? Array(5).fill(0).map((_, i) => <SkeletonAlertRow key={i} />)
-              : lowStock.map((s, i) => (
-                <div key={i} className="flex items-start gap-2.5 px-4 py-3 border-b border-gray-50 last:border-0">
-                  <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1" style={{ background: s.color }} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-semibold text-gray-900 truncate">{s.name}</p>
-                    <p className="text-[10px] font-medium mt-0.5" style={{ color: s.color }}>{s.left}</p>
-                  </div>
-                  <span className="text-[10px] font-bold text-red-500 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full flex-shrink-0">
-                    Low Stock
-                  </span>
-                </div>
-              ))
-            }
+          <div className="flex-1 overflow-y-auto" style={{ maxHeight: 220 }}>
+            <table className="w-full border-collapse table-auto">
+              <thead className="sticky top-0 z-10 bg-gray-50">
+                <tr className="border-b border-gray-100">
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left whitespace-nowrap">Medicine</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left whitespace-nowrap">Stock Left</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-center whitespace-nowrap">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading
+                  ? Array(5).fill(0).map((_, i) => <SkeletonRow key={i} cols={3} />)
+                  : lowStock.map((s, i) => (
+                    <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                      <td className="px-2 py-2">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: s.color }} />
+                          <span className="text-[12px] font-semibold text-gray-900 truncate max-w-[120px]">{s.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-2 text-[11px] font-medium whitespace-nowrap" style={{ color: s.color }}>{s.left}</td>
+                      <td className="px-2 py-2 text-center">
+                        <span className="text-[10px] font-bold text-red-500 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
           </div>
         </Card>
+
       </div>
 
       {/* ── Footer Info Bar ── */}
