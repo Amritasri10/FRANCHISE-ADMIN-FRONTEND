@@ -219,10 +219,10 @@ function AdminDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="hidden sm:flex items-center gap-1 text-[11px] text-gray-500">
+          {/* <span className="hidden sm:flex items-center gap-1 text-[11px] text-gray-500">
             <Calendar size={12} />
             {now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-          </span>
+          </span> */}
           <button
             onClick={() => setRefreshKey(k => k + 1)}
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-gray-700 transition-colors"
