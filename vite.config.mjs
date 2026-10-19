@@ -31,7 +31,6 @@ export default defineConfig(() => {
       exclude: [],
     },
     optimizeDeps: {
-      force: true,
       esbuildOptions: {
         loader: {
           '.js': 'jsx',
