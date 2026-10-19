@@ -245,11 +245,12 @@ function AdminDashboard() {
       </div>
 
       {/* ── ROW 1: Live Rates + Price Trend ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch" style={{ gridTemplateColumns: '1fr 1fr' }}>
 
         {/* Live Wholesale Rate Comparison */}
-        <Card>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-3 border-b border-gray-100">
+        <Card className="flex flex-col min-w-0 overflow-hidden">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[13px] font-bold text-gray-900">Live Wholesale Rate Comparison</span>
               <span className="flex items-center gap-1 text-[10px] font-bold text-red-500 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">
@@ -257,83 +258,96 @@ function AdminDashboard() {
                 LIVE
               </span>
               <span className="text-[11px] text-gray-400">
-                Updated: {liveRates.updatedAt
-                  ? new Date(liveRates.updatedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-                  : '—'}
+                Updated: {liveRates.updatedAt ? new Date(liveRates.updatedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—'}
               </span>
             </div>
-            <button
-              onClick={() => navigate('/franchise/live-rates')}
-              className="flex items-center gap-1 text-[12px] text-blue-900 font-semibold hover:underline flex-shrink-0"
-            >
+            <button onClick={() => navigate('/franchise/live-rates')} className="flex items-center gap-1 text-[12px] text-blue-900 font-semibold hover:underline flex-shrink-0">
               View All Medicines <ChevronRight size={12} />
             </button>
           </div>
 
-          {/* Medicine info bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 bg-slate-50 border-b border-gray-100">
+          {/* Medicine info */}
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-slate-50 border-b border-gray-100 flex-shrink-0">
             <div>
-              <p className="text-[14px] font-bold text-gray-900">{liveRates.medicine?.name || 'Clavm 625 Tablet'}</p>
+              <p className="text-[13px] font-bold text-gray-900">{liveRates.medicine?.name || 'Clavm 625 Tablet'}</p>
               <p className="text-[11px] text-gray-500 mt-0.5">{liveRates.medicine?.salt || '—'} · {liveRates.medicine?.packSize || '—'}</p>
             </div>
-            <div className="flex flex-wrap gap-4 sm:gap-6">
+            <div className="flex gap-5">
               {[
-                { label: 'MRP',                  value: fmt(liveRates.medicine?.mrp),              color: 'text-gray-700' },
-                { label: 'Last Purchase Rate',   value: fmt(liveRates.medicine?.lastPurchaseRate), color: 'text-gray-700' },
-                { label: 'Today Best Rate',      value: fmt(liveRates.medicine?.bestRateToday),    color: 'text-green-600' },
-                { label: 'Wholesalers',          value: liveRates.medicine?.availableWholesalers || '—', color: 'text-blue-900' },
+                { label: 'MRP',         value: fmt(liveRates.medicine?.mrp),                   color: 'text-gray-800' },
+                { label: 'Last Rate',   value: fmt(liveRates.medicine?.lastPurchaseRate),       color: 'text-gray-800' },
+                { label: 'Best Rate',   value: fmt(liveRates.medicine?.bestRateToday),          color: 'text-green-600' },
+                { label: 'Wholesalers', value: liveRates.medicine?.availableWholesalers || '—', color: 'text-blue-900' },
               ].map(m => (
                 <div key={m.label} className="text-center">
-                  <p className="text-[10px] text-gray-400">{m.label}</p>
+                  <p className="text-[9px] text-gray-400 uppercase">{m.label}</p>
                   <p className={`text-[13px] font-bold ${m.color}`}>{m.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Table — scrollable */}
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-[580px]">
-              <thead>
-                <tr className="bg-gray-50">
-                  {['#', 'Wholesaler', 'Basic (₹)', 'Scheme', 'GST (₹)', 'Other (₹)', 'Effective (₹)', 'Stock', 'Delivery', 'Action'].map(h => (
-                    <th key={h} className="px-3 py-2 text-[10px] text-gray-500 font-bold uppercase text-left border-b border-gray-100 whitespace-nowrap">{h}</th>
-                  ))}
+          {/* Table — 5 rows visible, scroll only when 6+ rows, horizontal scroll for narrow screens */}
+          <div style={{
+            maxHeight: liveRates.rates.length > 5 ? 210 : 'none',
+            overflowY: liveRates.rates.length > 5 ? 'auto' : 'visible',
+            overflowX: 'auto'
+          }}>
+            <table className="w-full border-collapse" style={{ tableLayout: 'fixed', minWidth: 560 }}>
+              <colgroup>
+                <col style={{ width: 28 }} />
+                <col style={{ width: 130 }} />
+                <col style={{ width: 60 }} />
+                <col style={{ width: 80 }} />
+                <col style={{ width: 52 }} />
+                <col style={{ width: 90 }} />
+                <col style={{ width: 52 }} />
+                <col style={{ width: 75 }} />
+                <col style={{ width: 80 }} />
+              </colgroup>
+              <thead className="sticky top-0 z-10 bg-gray-50">
+                <tr className="border-b border-gray-100">
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left">#</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-left">Wholesaler</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right">Basic</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-center">Scheme</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right">GST</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right">Effective</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-right">Stock</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-center">Delivery</th>
+                  <th className="px-2 py-2 text-[10px] text-gray-400 font-bold uppercase text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {loading
-                  ? Array(5).fill(0).map((_, i) => <SkeletonRow key={i} cols={10} />)
+                  ? Array(5).fill(0).map((_, i) => <SkeletonRow key={i} cols={9} />)
                   : liveRates.rates.map(w => (
-                    <tr key={w.rank} className={`border-b border-gray-50 ${w.best ? 'bg-green-50' : 'hover:bg-gray-50'} transition-colors`}>
-                      <td className="px-3 py-2.5 text-[11px] text-gray-400">{w.rank}</td>
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[12px] font-semibold text-gray-900">{w.name}</span>
-                          {w.verified && <span className="text-[9px] font-bold text-green-600 bg-green-50 border border-green-200 px-1.5 py-px rounded-full">✓</span>}
-                          <span className="text-[10px] text-amber-500 flex items-center gap-0.5">
-                            <Star size={9} fill="#f59e0b" />{w.rating}
-                          </span>
+                    <tr key={w.rank} className={`border-b border-gray-50 last:border-0 ${w.best ? 'bg-green-50' : 'hover:bg-gray-50'} transition-colors`}>
+                      <td className="px-2 py-2 text-[11px] text-gray-400 whitespace-nowrap">{w.rank}</td>
+                      <td className="px-2 py-2">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <span title={w.name} className="text-[11px] font-semibold text-gray-900 truncate cursor-default">{w.name}</span>
+                          {/* <span className="text-[9px] text-amber-500 flex items-center gap-0.5 flex-shrink-0">
+                            <Star size={8} fill="#f59e0b" />{w.rating}
+                          </span> */}
                         </div>
                       </td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700">{w.basic?.toFixed(2)}</td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700">{w.scheme}</td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700">{w.gst?.toFixed(2)}</td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700">{w.other?.toFixed(2)}</td>
-                      <td className="px-3 py-2.5">
-                        <p className={`text-[13px] font-bold ${w.best ? 'text-green-600' : 'text-gray-900'}`}>₹{w.effective?.toFixed(2)}</p>
-                        {w.best && <p className="text-[10px] font-semibold text-green-600">Best Price</p>}
+                      <td className="px-2 py-2 text-[11px] text-gray-700 text-right whitespace-nowrap">{w.basic?.toFixed(2)}</td>
+                      <td className="px-2 py-2 text-[11px] text-gray-700 text-center" title={w.scheme}>
+                        <span className="block truncate">{w.scheme}</span>
                       </td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700">{w.stock}</td>
-                      <td className="px-3 py-2.5 text-[12px] text-gray-700">{w.delivery}</td>
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => navigate('/franchise/live-rates/purchase-cart')}
-                            className="text-[11px] font-semibold bg-blue-900 text-white border-none rounded-md px-2.5 py-1.5 cursor-pointer hover:bg-blue-800 transition-colors"
-                          >Buy Now</button>
-                          <button className="bg-gray-100 hover:bg-gray-200 border-none rounded-md p-1.5 cursor-pointer text-gray-600 transition-colors">
-                            <Phone size={11} />
+                      <td className="px-2 py-2 text-[11px] text-gray-700 text-right whitespace-nowrap">{w.gst?.toFixed(2)}</td>
+                      <td className="px-2 py-2 text-right whitespace-nowrap">
+                        <p className={`text-[12px] font-bold ${w.best ? 'text-green-600' : 'text-gray-900'}`}>₹{w.effective?.toFixed(2)}</p>
+                        {w.best && <p className="text-[9px] text-green-600 font-semibold">Best</p>}
+                      </td>
+                      <td className="px-2 py-2 text-[11px] text-gray-700 text-right whitespace-nowrap">{w.stock}</td>
+                      <td className="px-2 py-2 text-[11px] text-gray-700 text-center whitespace-nowrap" title={w.delivery}>{w.delivery}</td>
+                      <td className="px-2 py-2 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1">
+                          <button onClick={() => navigate('/franchise/live-rates/purchase-cart')} className="text-[10px] font-semibold bg-blue-900 text-white rounded-md px-2 py-1 hover:bg-blue-800 transition-colors whitespace-nowrap">Buy Now</button>
+                          <button title="Call wholesaler" className="bg-gray-100 hover:bg-gray-200 rounded-md p-1.5 text-gray-600 transition-colors flex-shrink-0">
+                            <Phone size={10} />
                           </button>
                         </div>
                       </td>
@@ -344,83 +358,74 @@ function AdminDashboard() {
             </table>
           </div>
 
+          {/* Save tip */}
           {liveRates.rates.length > 0 && (
-            <div className="px-4 py-2 bg-green-50 border-t border-green-100">
+            <div className="px-4 py-1.5 bg-green-50 border-t border-green-100 flex-shrink-0">
               <p className="text-[11px] text-green-700 font-medium">
-                You can save ₹{((liveRates.rates[1]?.basic || 0) - (liveRates.rates[0]?.basic || 0)).toFixed(2)} per strip by buying from {liveRates.rates[0]?.name}
+                Save ₹{((liveRates.rates[1]?.basic || 0) - (liveRates.rates[0]?.basic || 0)).toFixed(2)} per strip —{' '}
+                <span title={liveRates.rates[0]?.name} className="font-bold cursor-default">{liveRates.rates[0]?.name}</span>
               </p>
             </div>
           )}
 
-          <div className="flex gap-2 px-4 py-3">
-            <button
-              onClick={() => navigate('/franchise/live-rates/scheme-comparison')}
-              className="flex-1 py-2 border border-gray-200 rounded-lg text-[12px] font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-            >Compare Scheme</button>
-            <button
-              onClick={() => navigate('/franchise/live-rates/purchase-cart')}
-              className="flex-1 py-2 bg-blue-900 text-white border-none rounded-lg text-[12px] font-semibold hover:bg-blue-800 transition-colors"
-            >Add to Purchase Cart</button>
+          {/* Buttons */}
+          <div className="flex gap-2 px-4 py-3 border-t border-gray-100 flex-shrink-0">
+            <button onClick={() => navigate('/franchise/live-rates/scheme-comparison')} className="flex-1 py-2 border border-gray-200 rounded-lg text-[12px] font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">Compare Scheme</button>
+            <button onClick={() => navigate('/franchise/live-rates/purchase-cart')} className="flex-1 py-2 bg-blue-900 text-white rounded-lg text-[12px] font-semibold hover:bg-blue-800 transition-colors">Add to Purchase Cart</button>
           </div>
         </Card>
 
         {/* Price Trend */}
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader title="Price Trend" />
-          <div className="p-4">
-            <p className="text-[11px] text-gray-500 mb-3">{priceTrend?.medicine || 'Clavm 625 Tablet'}</p>
+          <div className="flex-1 flex flex-col p-4 min-h-0">
+            <p className="text-[12px] font-semibold text-gray-700 mb-3 flex-shrink-0">{priceTrend?.medicine || 'Clavm 625 Tablet'}</p>
 
-            {/* Chart */}
-            <div className="relative h-28 mb-4">
+            {/* Bar Chart — flex-1 fills space between header and stats */}
+            <div className="relative flex-1 min-h-[160px] mb-4">
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                 {[70, 67, 65, 62, 60].map(v => (
                   <div key={v} className="flex items-center gap-1">
-                    <span className="text-[9px] text-gray-400 w-5 text-right">₹{v}</span>
+                    <span className="text-[9px] text-gray-400 w-6 text-right flex-shrink-0">₹{v}</span>
                     <div className="flex-1 border-t border-dashed border-gray-100" />
                   </div>
                 ))}
               </div>
-              <div className="absolute bottom-3 left-6 right-0 flex items-end gap-1" style={{ height: 80 }}>
+              <div className="absolute inset-0 left-8 bottom-5 flex items-end gap-1.5">
                 {PRICE_TREND.map((v, i) => {
                   const max = Math.max(...PRICE_TREND) || 70
                   const min = Math.min(...PRICE_TREND) || 60
-                  const h = ((v - min) / (max - min || 1)) * 70 + 8
+                  const hPct = ((v - min) / (max - min || 1)) * 75 + 10
                   const label = priceTrend?.trend?.[i]?.date || `${i + 1}`
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                      <div
-                        className={`w-full rounded-t-sm ${i === PRICE_TREND.length - 1 ? 'bg-green-500' : 'bg-blue-900 opacity-40'}`}
-                        style={{ height: h }}
-                      />
-                      <span className="text-[8px] text-gray-400">{label}</span>
+                    <div key={i} className="flex-1 flex flex-col items-center gap-0.5 h-full justify-end" title={`₹${v}`}>
+                      <div className={`w-full rounded-t-sm ${i === PRICE_TREND.length - 1 ? 'bg-green-500' : 'bg-blue-900/40'}`} style={{ height: `${hPct}%` }} />
+                      <span className="text-[8px] text-gray-400 whitespace-nowrap">{label}</span>
                     </div>
                   )
                 })}
               </div>
             </div>
 
-            <div className="flex flex-col divide-y divide-gray-50">
+            {/* Stats */}
+            <div className="flex flex-col divide-y divide-gray-50 flex-shrink-0">
               {[
-                { label: "Yesterday's Avg", value: priceTrend ? fmt(priceTrend.avgYesterday) : '—', cls: 'text-gray-700' },
-                { label: '7 Days Avg',      value: priceTrend ? fmt(priceTrend.avg7Days) : '—',    cls: 'text-gray-700' },
-                { label: '30 Days Avg',     value: priceTrend ? fmt(priceTrend.avg30Days) : '—',   cls: 'text-gray-700' },
-                { label: "Today's Best",    value: priceTrend ? fmt(priceTrend.bestToday) : '—',   cls: 'text-green-600' },
+                { label: "Yesterday's Avg Rate", value: priceTrend ? fmt(priceTrend.avgYesterday) : '—', cls: 'text-gray-800' },
+                { label: '7 Days Avg Rate',      value: priceTrend ? fmt(priceTrend.avg7Days) : '—',    cls: 'text-gray-800' },
+                { label: '30 Days Avg Rate',     value: priceTrend ? fmt(priceTrend.avg30Days) : '—',   cls: 'text-gray-800' },
+                { label: "Today's Best Rate",    value: priceTrend ? fmt(priceTrend.bestToday) : '—',   cls: 'text-green-600' },
               ].map(r => (
-                <div key={r.label} className="flex justify-between py-2">
-                  <span className="text-[11px] text-gray-500">{r.label}</span>
-                  <span className={`text-[12px] font-bold ${r.cls}`}>{r.value}</span>
+                <div key={r.label} className="flex items-center justify-between py-2.5">
+                  <span className="text-[12px] text-gray-500">{r.label}</span>
+                  <span className={`text-[13px] font-bold ${r.cls}`}>{r.value}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex gap-2 mt-3">
-              <button
-                onClick={() => navigate('/franchise/live-rates/price-history')}
-                className="flex-1 py-2 border border-gray-200 rounded-lg text-[11px] font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-              >Rate History</button>
-              <button className="flex-1 py-2 bg-blue-900 text-white border-none rounded-lg text-[11px] font-semibold hover:bg-blue-800 transition-colors">
-                Set Price Alert
-              </button>
+            {/* Buttons pinned at bottom */}
+            <div className="flex gap-2 pt-3 mt-2 border-t border-gray-100 flex-shrink-0">
+              <button onClick={() => navigate('/franchise/live-rates/price-history')} className="flex-1 py-2 border border-gray-200 rounded-lg text-[12px] font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">Rate History</button>
+              <button className="flex-1 py-2 bg-blue-900 text-white rounded-lg text-[12px] font-semibold hover:bg-blue-800 transition-colors">Set Price Alert</button>
             </div>
           </div>
         </Card>
@@ -678,7 +683,7 @@ function AdminDashboard() {
       </div>
 
       {/* ── Footer Info Bar ── */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      {/* <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         {[
           { label: 'Pharmacy Name', value: franchiseInfo?.franchiseName || 'Franchise Portal', color: '' },
           { label: 'Pharmacy ID',   value: franchiseInfo?.franchiseCode || 'FRN-001',          color: '' },
@@ -691,7 +696,7 @@ function AdminDashboard() {
           </div>
         ))}
         <span className="text-[11px] text-gray-400">Made with care for Indian Pharmacies</span>
-      </div>
+      </div> */}
 
     </div>
   )
